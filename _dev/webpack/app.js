@@ -1,7 +1,9 @@
 class App {
   constructor() {
+
     const $START_CAMERA_BUTTON = document.querySelector('.js-button-camera-start');
     const $STOP_CAMERA_BUTTON = document.querySelector('.js-button-camera-stop');
+
     //動画流す準備
     const video = document.getElementById("video");
     // getUserMedia によるカメラ映像の取得
