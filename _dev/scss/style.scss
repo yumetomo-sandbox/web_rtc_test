@@ -3,9 +3,19 @@
   padding: 0;
 }
 video {
-  width: 100vw;
-  height: 100vh;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
 }
 canvas {
-  display: none;
+  width: 100%;
+}
+.output {
+  width: 100vw;
+  img {
+    width: 100%;
+  }
 }

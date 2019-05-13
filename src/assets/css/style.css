@@ -1,1 +1,1 @@
-*{margin:0;padding:0}video{width:100vw;height:100vh}canvas{display:none}
+*{margin:0;padding:0}video{position:absolute;top:0;left:0;width:1px;height:1px;opacity:0;-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)"}canvas{width:100%}.output{width:100vw}.output img{width:100%}

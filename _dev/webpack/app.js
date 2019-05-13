@@ -1,9 +1,15 @@
 class App {
   constructor() {
     // 設定用
-    this.width = window.outerWidth;
-    this.height = window.outerHeight;
+    this.width = 1500;
+    this.height = 2000;
     this.isStreaming = false;
+    this.videoWidth = 0;
+    this.videoHeight = 0;
+    this.drawWidth = 0;
+    this.drawHeight = 0;
+    this.drawStartX = 0;
+    this.drawStartY = 0;
 
     // 要素取得
     this.$startButton = document.querySelector('.js-button-camera-start');
@@ -12,6 +18,7 @@ class App {
     this.$capture = document.querySelector('.capture');
     this.$video = document.getElementById('video');
     this.$canvas = document.getElementById('canvas');
+    this.context = this.$canvas.getContext('2d');
 
     this.bind();
     this.setup();
@@ -46,8 +53,8 @@ class App {
       //使うカメラをインカメラか背面カメラかを指定する場合には
       video: {
         facingMode: "environment", //背面カメラ
-        maxWidth: this.width,
-        maxHeight: this.height
+        width: 1920,
+        height: 1080
       },
       //video: { facingMode: "user" },//インカメラ
       audio: false,//音声が必要な場合はture
@@ -58,6 +65,10 @@ class App {
       .then((stream) => {
         this.$startButton.addEventListener('click', () => {
           this.$video.srcObject = stream;
+          this.$video.onloadedmetadata = () => {
+            this.fit();
+            this.renderingToCanvas();
+          }
         });
         this.$stopButton.addEventListener('click', () => {
           this.$video.srcObject = null;
@@ -69,32 +80,47 @@ class App {
   }
 
   /**
-   * キャプチャした画像を消す
+   * canvasのサイズ設定
    */
-  clearCaptureImage() {
-    const CONTEXT = this.$canvas.getContext('2d');
-    CONTEXT.fillStyle = "#AAA";
-    CONTEXT.fillRect(0, 0, this.$canvas.width, this.$canvas.height);
+  fit() {
+    this.$canvas.style.width = '100vw';
+    this.$canvas.width = this.width;
+    this.$canvas.height = this.height;
 
-    const DATA = this.$canvas.toDataURL('image/png');
-    this.$capture.setAttribute('src', DATA);
+    this.videoWidth = this.$video.videoWidth;
+    this.videoHeight = this.$video.videoHeight;
+
+    if (this.videoWidth / this.videoHeight > this.width / this.height) {
+      this.drawHeight = this.height;
+      this.drawWidth = this.height / this.videoHeight * this.videoWidth;
+    } else {
+      this.drawWidth = this.width;
+      this.drawHeight = this.width / this.videoWidth * this.videoHeight;
+    }
+    this.drawStartX = (this.width - this.drawWidth) / 2;
+    this.drawStartY = (this.height - this.drawHeight) / 2;
+    console.log(this.videoWidth, this.videoHeight);
+    console.log(this.drawStartX, this.drawStartY, this.drawWidth, this.drawHeight);
+
+  };
+
+  /**
+   * canvasに映像出力
+   */
+  renderingToCanvas() {
+    window.requestAnimationFrame.call(window, this.renderingToCanvas.bind(this));
+    // console.log(this.$video, this.drawStartX, this.drawStartY, this.drawWidth, this.drawHeight);
+
+    this.context.clearRect(0, 0, this.width, this.height);
+    this.context.drawImage(this.$video, this.drawStartX, this.drawStartY, this.drawWidth, this.drawHeight)
   }
 
   /**
    * videoの映像をキャプチャする
    */
   takeCaptureImage() {
-    const CONTEXT = this.$canvas.getContext('2d');
-    if (this.width && this.height) {
-      this.$canvas.width = this.width;
-      this.$canvas.height = this.height;
-      CONTEXT.drawImage(this.$video, 0, 0, this.width, this.height);
-
-      const DATA = this.$canvas.toDataURL('image/png');
-      this.$capture.setAttribute('src', DATA);
-    } else {
-      this.clearCaptureImage();
-    }
+    const DATA = this.$canvas.toDataURL();
+    this.$capture.setAttribute('src', DATA);
   }
 }
 
